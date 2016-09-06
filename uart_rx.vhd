@@ -10,7 +10,9 @@ entity uart_rx is
            rx_data: out std_logic_vector(7 downto 0);  --接收数据寄存器，保存直至下一个数据来到 
            rx_int: out std_logic;                      --接收数据中断信号，接收数据期间时钟为高电平
            seg_data1: OUT std_logic_vector(7 DOWNTO 0);  --数码管数据
-           seg_data2: OUT std_logic_vector(7 DOWNTO 0)  --数码管数据
+           seg_data2: OUT std_logic_vector(7 DOWNTO 0);  --数码管数据
+           sw:in std_logic;--gai--
+           led:out std_logic--gai--
           );
 end uart_rx;
     
@@ -73,6 +75,7 @@ begin
             else
                 if (rising_edge(clk)) then
                        if(clk_bps='1')then
+							if(sw='0')then--gai--
                                num<=num+1;
                                case num is
                                     when  1=>rx_data_r(0)<=rs232_rx;--锁存第0bit
@@ -87,6 +90,23 @@ begin
                                     when  11=>num<=15;
                                     when  others=>null;
                                end case;
+                            else--gai--
+                               num<=num+1;
+                               case num is
+                                    when  1=>rx_data_r(0)<=rs232_rx;--锁存第0bit
+                                    when  2=>rx_data_r(1)<=rs232_rx;--锁存第0bit
+                                    when  3=>rx_data_r(2)<=rs232_rx;--锁存第0bit
+                                    when  4=>rx_data_r(3)<=rs232_rx;--锁存第0bit 
+                                    when  5=>rx_data_r(4)<=rs232_rx;--锁存第0bit 
+                                    when  6=>rx_data_r(5)<=rs232_rx;--锁存第0bit 
+                                    when  7=>rx_data_r(6)<=rs232_rx;--锁存第0bit 
+                                    when  8=>led<=not (rx_data_r(0) xor rx_data_r(1) xor rx_data_r(2) xor rx_data_r(3) xor
+												rx_data_r(4) xor rx_data_r(5) xor rx_data_r(6)) ;  --gai--       --锁存第0bit 
+                                    when  10=>rx_data<=rx_data_r;
+                                    when  11=>num<=15;
+                                    when  others=>null;
+                               end case;
+                             end if;--gai--
                                if(num=15) then
                                     num<=0;
                                end if;

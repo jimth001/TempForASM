@@ -6,7 +6,8 @@ entity speed_select is
       port(clk : in  std_logic;                        --系统时钟
            rst_n: in std_logic;                        --复位信号
            clk_bps: out std_logic;                     --此时clk_bps的高电平为接收或者发送数据位的中间采样点 
-           bps_start:in std_logic        --接收数据后，波特率时钟启动信号置位或者开始发送数据时，波特率时钟启动信号置位
+           bps_start:in std_logic;        --接收数据后，波特率时钟启动信号置位或者开始发送数据时，波特率时钟启动信号置位
+           sw:in std_logic
            );
 end speed_select;
    
@@ -14,10 +15,23 @@ architecture behav of speed_select is
 
 signal cnt:std_logic_vector(12 downto 0); 
 signal clk_bps_r:std_logic;  
-constant BPS_PARA:integer:=5207; 
-constant BPS_PARA_2:integer:=2603;  
+shared variable BPS_PARA:integer:=5207; 
+shared variable BPS_PARA_2:integer:=2603;  
+--shared variable BPS:integer:=5207;
+--shared variable BPS1:integer:=2603; 
 
 begin
+    process(sw)
+		begin
+			if (sw='0')then
+				BPS_PARA:=5207;
+				BPS_PARA_2:=2603;
+			else
+				BPS_PARA:=2603;
+				BPS_PARA_2:=1301;
+			end if;
+	end process;
+    
     process(clk,rst_n)
         begin
              if (rst_n='0')then

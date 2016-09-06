@@ -8,7 +8,9 @@ entity uart_tx is
            clk_bps: in std_logic;                      --此时clk_bps的高电平为接收数据的采样点
            bps_start:out std_logic;                    --接收到数据后，波特率时钟启动置位 
            rx_data: in std_logic_vector(7 downto 0);   --接收数据寄存器，保存直至下一个数据来到
-           rx_int: in std_logic                        --接收数据中断信号，接收数据期间时钟为高电平
+           rx_int: in std_logic;                        --接收数据中断信号，接收数据期间时钟为高电平
+           sw :in std_logic;--gai--
+           led : out std_logic_vector(7 downto 0)--gai--
            ); 
 end uart_tx;
   
@@ -64,22 +66,43 @@ begin
                   num<=0;    
           else      
               if (rising_edge(clk)) then
-                    if(clk_bps='1')then        
-                         num<=num+1; 
-                         case num is
-                             when  1=>rs232_tx<='0';         
-                             when  2=>rs232_tx<=tx_data(0);--发送第1bit         
-                             when  3=>rs232_tx<=tx_data(1);--发送第2bit         
-                             when  4=>rs232_tx<=tx_data(2);--发送第3bit         
-                             when  5=>rs232_tx<=tx_data(3);--发送第4bit         
-                             when  6=>rs232_tx<=tx_data(4);--发送第5bit         
-                             when  7=>rs232_tx<=tx_data(5);--发送第6bit         
-                             when  8=>rs232_tx<=tx_data(6);--发送第7bit         
-                             when  9=>rs232_tx<=tx_data(7);--发送第8bit         
-                             when  10=>rs232_tx<='1';         
-                             when  11=>num<=15;         
-                             when  others=>null; 
-                         end case;        
+                    if(clk_bps='1')then  
+						if(sw='0')then--gai--
+							 num<=num+1; 
+							 case num is
+								 when  1=>rs232_tx<='0';         
+								 when  2=>rs232_tx<=tx_data(0);--发送第1bit         
+								 when  3=>rs232_tx<=tx_data(1);--发送第2bit         
+								 when  4=>rs232_tx<=tx_data(2);--发送第3bit         
+								 when  5=>rs232_tx<=tx_data(3);--发送第4bit         
+								 when  6=>rs232_tx<=tx_data(4);--发送第5bit         
+								 when  7=>rs232_tx<=tx_data(5);--发送第6bit         
+								 when  8=>rs232_tx<=tx_data(6);--发送第7bit         
+								 when  9=>rs232_tx<=tx_data(7);--发送第8bit         
+								 when  10=>rs232_tx<='1';         
+								 when  11=>num<=15;         
+								 when  others=>null; 
+							 end case;
+							 led(7 downto 0)<=tx_data(7 downto 0);--gai--
+						 else 
+							 num<=num+1; 
+							 case num is
+								 when  1=>rs232_tx<='0';         
+								 when  2=>rs232_tx<=tx_data(0);--发送第1bit         
+								 when  3=>rs232_tx<=tx_data(1);--发送第2bit         
+								 when  4=>rs232_tx<=tx_data(2);--发送第3bit         
+								 when  5=>rs232_tx<=tx_data(3);--发送第4bit         
+								 when  6=>rs232_tx<=tx_data(4);--发送第5bit         
+								 when  7=>rs232_tx<=tx_data(5);--发送第6bit         
+								 when  8=>rs232_tx<=tx_data(6);--发送第7bit         
+                                 when  9=>rs232_tx<=not (tx_data(0) xor tx_data(1) xor tx_data(2) xor tx_data(3) xor
+												tx_data(4) xor tx_data(5) xor tx_data(6)) ;--发送第8bit      --gai--
+								 when  10=>rs232_tx<='1';          
+								 when  11=>num<=15;         
+								 when  others=>null; 
+							 end case;
+							 led(7 downto 0)<=tx_data(7 downto 0);--gai--
+						 end if;
                          if(num=15) then         
                               num<=0;        
                          end if;       
